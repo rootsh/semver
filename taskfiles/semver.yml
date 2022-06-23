@@ -3,8 +3,7 @@ version: '3'
 tasks:
   default:
     cmds:
-      - task: variables
-        
+      - task: variables  
   semver:
     desc: Semantic Version
     cmds:
@@ -18,7 +17,7 @@ tasks:
       GIT_COMMIT:
         sh: git log -n 1 --format=%h
       GIT_MSG_PREFIX:
-        sh: git log --format=%B -n 1 | cut -f1 -d':'
+        sh: git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':'
       GIT_CURRENT_VERSION:
         sh: git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0
       GIT_NEXT_VERSION:
