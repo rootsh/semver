@@ -1,9 +1,9 @@
 version: '3'
 
 tasks:
-  semver:
+  default:
     desc: Semantic Version
-    deps: [packages, ssh-github]
+    deps: [ssh-github]
     cmds:
       - echo {{.GIT_CURRENT_VERSION}}
       - echo {{.GIT_SEMVER}}
