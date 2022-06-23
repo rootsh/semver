@@ -8,7 +8,7 @@ tasks:
     desc: Semantic Version
     cmds:
       - echo {{.GIT_COMMIT}}
-      - echo {{.GIT_MSG_PREFIX}}
+      - echo {{.GIT_SEMVER}}
       - git checkout main
       - git tag v{{.GIT_NEXT_VERSION}}
       - git push --tags
@@ -16,10 +16,11 @@ tasks:
     vars:
       GIT_COMMIT:
         sh: git log -n 1 --format=%h
-      GIT_MSG_PREFIX:
-        sh: git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':'
+      GIT_SEMVER:
+        sh: GIT_BREAKING_CHANGE=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i "BREAKING CHANGE"); [[ "$GIT_BREAKING_CHANGE" == "BREAKING CHANGE" ]] && echo "major" || GIT_FEAT=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i feat); [[ "$GIT_FEAT" == "feat" ]] && echo "minor" || echo "patch"
       GIT_CURRENT_VERSION:
         sh: git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0
       GIT_NEXT_VERSION:
         sh: docker run --rm alpine/semver semver -c -i patch {{.GIT_CURRENT_VERSION}}
+        
         
