@@ -8,6 +8,8 @@ tasks:
   semver:
     desc: Semantic Version
     cmds:
+      - echo {{.GIT_COMMIT}}
+      - echo {{.GIT_MSG_PREFIX}}
       - git checkout main
       - git tag v{{.GIT_NEXT_VERSION}}
       - git push --tags
