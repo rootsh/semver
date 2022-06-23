@@ -17,9 +17,9 @@ tasks:
       GIT_COMMIT:
         sh: git log -n 1 --format=%h
       GIT_SEMVER:
-        sh: GIT_BREAKING_CHANGE=$(git log --format=%B -n 2 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i "BREAKING CHANGE"); [[ "$GIT_BREAKING_CHANGE" == "BREAKING CHANGE" ]] && echo "major" || "echo patch"; exit 0 && GIT_FEAT=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i feat); [[ "$GIT_FEAT" == "feat" ]] && echo "minor" || echo "patch" ; exit 0
+        sh: GIT_BREAKING_CHANGE=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i "BREAKING CHANGE"); GIT_FEAT=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -v Merge | grep -i feat); if [ "$GIT_BREAKING_CHANGE" == "BREAKING CHANGE" ]; then echo "major"; elif [ "$GIT_FEAT" == "feat" ]; then echo "minor"; else echo "path"; fi
       GIT_CURRENT_VERSION:
-        sh: git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0
+        sh: git tag --sort=v:refname | tail -1 2>/dev/null || echo v0.0.0
       GIT_NEXT_VERSION:
         sh: docker run --rm alpine/semver semver -c -i {{.GIT_SEMVER}} {{.GIT_CURRENT_VERSION}}
         
