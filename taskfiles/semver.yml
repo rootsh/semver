@@ -1,11 +1,9 @@
 version: '3'
 
 tasks:
-  default:
-    cmds:
-      - task: variables  
   semver:
     desc: Semantic Version
+    deps: [packages, ssh-github]
     cmds:
       - echo {{.GIT_COMMIT}}
       - echo {{.GIT_SEMVER}}
@@ -21,6 +19,23 @@ tasks:
       GIT_CURRENT_VERSION:
         sh: git tag --sort=v:refname | tail -1 2>/dev/null || echo v0.0.0
       GIT_NEXT_VERSION:
-        sh: docker run --rm alpine/semver semver -c -i {{.GIT_SEMVER}} {{.GIT_CURRENT_VERSION}}
-        
+        #sh: docker run --rm alpine/semver semver -c -i {{.GIT_SEMVER}} {{.GIT_CURRENT_VERSION}}
+        sh: semver -c -i {{.GIT_SEMVER}} {{.GIT_CURRENT_VERSION}}
+    
+  packages:
+    dir: /tmp
+    cmds:
+      - apk add --no-cache git openssh curl
+      - curl -sLO https://github.com/cli/cli/releases/download/v{{.GH_VERSION}}/gh_{{.GH_VERSION}}_linux_{{.GH_ARCH}}.tar.gz
+      - tar xzf gh_{{.GH_VERSION}}_linux_{{.GH_ARCH}}.tar.gz
+      -  mv gh_{{.GH_VERSION}}_linux_{{.GH_ARCH}}/bin/gh /usr/local/bin/
+    vars:
+      GH_VERSION: 2.13.0
+      GH_ARCH: arm64
+
+  ssh-github:
+    cmds:
+      - mkdir -p /root/.ssh
+      - ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
+
         
