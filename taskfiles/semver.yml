@@ -1,0 +1,23 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task: variables
+        
+  semver:
+    desc: Semantic Version
+    cmds:
+      - git checkout main
+      - git tag{{.GIT_NEXT_VERSION}}
+      - git push --tags
+    vars:
+      GIT_COMMIT:
+        sh: git log -n 1 --format=%h
+      GIT_MSG_PREFIX:
+        sh: git log --format=%B -n 1 | cut -f1 -d':'
+      GIT_CURRENT_VERSION:
+        sh: git describe --tags --abbrev=0 &>/dev/null || echo v0.0.0
+      GIT_NEXT_VERSION:
+        sh: docker run --rm alpine/semver semver -c -i patch {{.GIT_CURRENT_VERSION}}
+        
