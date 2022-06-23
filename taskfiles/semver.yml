@@ -5,8 +5,9 @@ tasks:
     desc: Semantic Version
     deps: [packages, ssh-github]
     cmds:
-      - echo {{.GIT_COMMIT}}
+      - echo {{.GIT_CURRENT_VERSION}}
       - echo {{.GIT_SEMVER}}
+      - echo {{.GIT_NEXT_VERSION}}
       - git checkout main
       - git tag v{{.GIT_NEXT_VERSION}}
       - git push --tags
@@ -15,7 +16,7 @@ tasks:
       GIT_COMMIT:
         sh: git log -n 1 --format=%h
       GIT_SEMVER:
-        sh: GIT_BREAKING_CHANGE=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i "BREAKING CHANGE"); GIT_FEAT=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -v Merge | grep -i feat); if [ "$GIT_BREAKING_CHANGE" == "BREAKING CHANGE" ]; then echo "major"; elif [ "$GIT_FEAT" == "feat" ]; then echo "minor"; else echo "path"; fi
+        sh: GIT_BREAKING_CHANGE=$(git log --format=%B -n 1 | sed '/^[[:space:]]*$/d' | cut -f1 -d':' | grep -i "BREAKING CHANGE"); GIT_FEAT=$(git log --format=%B -n 1 | grep -v Merge | grep -i feat | cut -f1 -d':' | sed '/^[[:space:]]*$/d' | sed 's/[[:punct:]]//g' |  sed 's/[[:space:]]//g' | head -1); if [ "$GIT_BREAKING_CHANGE" == "BREAKING CHANGE" ]; then echo "major"; elif [ "$GIT_FEAT" == "feat" ]; then echo "minor"; else echo "path"; fi
       GIT_CURRENT_VERSION:
         sh: git tag --sort=v:refname | tail -1 2>/dev/null || echo v0.0.0
       GIT_NEXT_VERSION:
